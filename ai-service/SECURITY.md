@@ -87,3 +87,90 @@ Scheduled monitor for abnormal patterns, trigger email alerts.
 
 - Implemented by Java Developer2
 - Implementation status: PENDING
+
+
+## 3. Tool Specific Threats
+
+1. Groq API Quota limits abuse
+
+- Attack Vector - 
+Groq's free tier for AI features has limited transactions. An attacker might spam this endpoint with hundreds of requests in a row. This makes a large call to Groq every single time and turn out to be expensive. The API quota runs out and the other legitimate users start getting errors for the rest of the day.
+
+- Damage Potential - HIGH. The entire AI feature becomes unavailable for all users therefore breaking down one of the important system functions. Creates unexpected costs if API is overused. Tool becomes unusable during actual usage.
+
+- Mitigation - 
+(Implemented by AI developer 3)
+Global flask-limiter for 30 requests/minute per IP address.
+/generate-report: rate limit usage of API for 10 requests/minute.
+Breaching the set limit returns HTTP 429 Too many requests with a message to 'retry_after' a time period in the response body.
+Redis stores the rate limit counters so that limits don't reset if Flask server restarts.
+(Implemented by AI Developer 2)
+Use fallback mechanism when Groq is unavailable ensuring app stays functional.
+
+- Implementation status: PENDING
+
+2. Including a Script tag within Security Control Description (User input)
+
+- Attack Vector - 
+Lets user write free text descriptions for security controls. If an attacker types actual HTML or JavaScript into one of these fields instead of a normal description and React renders this as actual HTML, the script runs in the browser of every person who opens that record. 
+Also called (Cross-Site Scripting: XSS)
+
+- Damage Potential - High. If JWT token get stolen, user details might get leaked and abused. Sensitive information can be compromised.
+
+- Mitigation - 
+Input Sanitization in the Flask Middleware using flask-bleach library which strips out any HTML tags from text before text is processed.
+Add security headers using flask-talisman which tell browser to be stricter about how it handles content.
+Test out if theses headers are present during ZAP scan. 
+
+- Implementation status: PENDING
+
+3. User input containing Internal System Information sent to Groq
+
+- Attack Vector -
+When a user writes a security control description, they might accidently include internal details of their organization within the input text such as server names, internal IP addresses. Groq is an external service and once data leaves our application and goes to their servers, we do not have control over what happens to it. 
+Technically, sensitive information about a company is being sent to a third party without the user realizing it.
+
+- Damage potential- MEDIUM. It is not a direct attack but a privacy and data handling issue. A user's company details might end up in an external AI provider's logs which can be a problem for them.
+
+- Mitigation -
+Adding basic detection in sanitization middlewre to catch things that look like IP addresses or server names and replace them with placeholders before the prompt is sent. 
+Inclusion of a small notice in the UI to notify users that the input is sent to an external AI service. 
+
+- Implementation status: PENDING
+
+4. Injecting a fake document into the knowledge base
+
+- Attack vector -
+We use ChromaDB to store knowledge documents that serves as context to the RAG architecture which the AI uses to give answers. If someone could get a fake document into the collection, the AI can confidently respond with wrong answers to the users. 
+
+- Damage potential - HIGH. AI would confidently give wrong advices and users can trust it because it is coming form the "knowledgeg base". It is dangerous especially because the suggestions are used to make security decisions.
+
+- Mitigation -
+The chroma_data/ folder is included in .gitignore so actual database is never committed or deployed.
+No endpoint or UI feature to let users upload their own documents into ChromaDB.
+All documents manually reviewed before seeding into the DB. 
+
+- Implementation status: PENDING
+
+5. Database getting exposed because of unsupervised docker configuration.
+
+- Attack Vector - 
+In docker-compose.yml, the ports instruction maps a port on host machine to a port inside the container. If we use a short syntax like ports: 5432:5432, Docker defaults to bind the host port to all available network interfaces (0.0.0.0). 
+This makes it accessible from outside the container if the host machine is a shared/public address or a local network. Anyone can connect to the database at public-ip:5432 and manipulate the database.
+
+- Damage potential - HIGH. Direct database access means reading all records, user credentials, audit logs, being able to insert data, drop tables. All other security layers becomes irrelevant.
+
+- Mitigation -
+Configure the Docker Compose file so that PostgreSQL and Redis do not publish their ports to the host machine. They are only reachable from within the network.
+.env is included in .gitignore so actual database credentials never end up on GitHub.
+.env.example file only has placeholder values and no real credentials are committed.
+
+## 4. Security Tests Conducted
+
+
+## 5. ZAP Scan findings
+
+
+## 6. Security Checklist and Residual risks
+
+_ documented after all tests are completed at the final week _
