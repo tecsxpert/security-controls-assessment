@@ -1,13 +1,13 @@
-# SECURITY.md - Tool 53: Security Controls Assessment
+# **SECURITY.md - Tool 53: Security Controls Assessment**
 
-## 1. Overview
+## **1. Overview**
 
 Tool 53 is an AI powered web application that allows security teams to create, track and assess organizational securty controls.
 Application accepts user input as text, processes it through Flask AI microservice, stores data in PostgreSQL and serves results through React frontend.
 
-## 2. OWASP Top 10 Risks
+## 2. **OWASP Top 10 Risks**
 
-1. A05 - Injection (Prompt Injection)
+**1. A05 - Injection (Prompt Injection)**
 
 - Affects Flask AI service where endpoints accept user text input.
 
@@ -22,7 +22,7 @@ Implement input sanitization middleware that scans incoming text for known phras
 - Implemented by: AI Developer 3
 - Implementation status: PENDING
 
-2. A07 - Authentication Failures
+**2. A07 - Authentication Failures**
 
 - Affects REST endpoints of System Backend
 
@@ -38,7 +38,7 @@ Plaintext passwords are hashed before storage.
 - Implemented by: Java Developer 1
 - Implementation status: PENDING
 
-3. A01 - Broken Access Control
+**3. A01 - Broken Access Control**
 
 - Affects role restricted endpoints of System Backend
 
@@ -55,7 +55,7 @@ Roles are included in the JWT payload and validated server-side on every request
 - Implemented by: Java Developer 2
 - Implementation status: PENDING
 
-4. A02 - Security Misconfiguration
+**4. A02 - Security Misconfiguration**
 
 - Affects System Backend- Swagger UI, error responses.
 
@@ -71,7 +71,7 @@ All environment specific credentials use placeholders (eg. ${ENV_VAR_NAME}) in a
 
 - Implementation status: PENDING
 
-5. A09 - Security Logging & Alerting Failures
+**5. A09 - Security Logging & Alerting Failures**
 
 - Affects System Backend
 
@@ -89,9 +89,9 @@ Scheduled monitor for abnormal patterns, trigger email alerts.
 - Implementation status: PENDING
 
 
-## 3. Tool Specific Threats
+## **3. Tool Specific Threats**
 
-1. Groq API Quota limits abuse
+**1. Groq API Quota limits abuse**
 
 - Attack Vector - 
 Groq's free tier for AI features has limited transactions. An attacker might spam this endpoint with hundreds of requests in a row. This makes a large call to Groq every single time and turn out to be expensive. The API quota runs out and the other legitimate users start getting errors for the rest of the day.
@@ -107,9 +107,11 @@ Redis stores the rate limit counters so that limits don't reset if Flask server 
 (Implemented by AI Developer 2)
 Use fallback mechanism when Groq is unavailable ensuring app stays functional.
 
-- Implementation status: PENDING
+- Implementation status: COMPLETED.
+- Implemented using flask-limiter with Redis backend. 30 req/min global default and 10 req/min on generate report endpoint. Manual testing done.
+- Testing status: PENDING
 
-2. Including a Script tag within Security Control Description (User input)
+**2. Including a Script tag within Security Control Description (User input)**
 
 - Attack Vector - 
 Lets user write free text descriptions for security controls. If an attacker types actual HTML or JavaScript into one of these fields instead of a normal description and React renders this as actual HTML, the script runs in the browser of every person who opens that record. 
@@ -122,9 +124,11 @@ Input Sanitization in the Flask Middleware using flask-bleach library which stri
 Add security headers using flask-talisman which tell browser to be stricter about how it handles content.
 Test out if theses headers are present during ZAP scan. 
 
-- Implementation status: PENDING
+- Implementation status: PENDING.
+- Sanitization middleware implemented using bleach+beautiful soup. to strip html, style and script tags and content within.
 
-3. User input containing Internal System Information sent to Groq
+
+**3. User input containing Internal System Information sent to Groq**
 
 - Attack Vector -
 When a user writes a security control description, they might accidently include internal details of their organization within the input text such as server names, internal IP addresses. Groq is an external service and once data leaves our application and goes to their servers, we do not have control over what happens to it. 
@@ -138,7 +142,7 @@ Inclusion of a small notice in the UI to notify users that the input is sent to 
 
 - Implementation status: PENDING
 
-4. Injecting a fake document into the knowledge base
+**4. Injecting a fake document into the knowledge base**
 
 - Attack vector -
 We use ChromaDB to store knowledge documents that serves as context to the RAG architecture which the AI uses to give answers. If someone could get a fake document into the collection, the AI can confidently respond with wrong answers to the users. 
@@ -152,7 +156,7 @@ All documents manually reviewed before seeding into the DB.
 
 - Implementation status: PENDING
 
-5. Database getting exposed because of unsupervised docker configuration.
+**5. Database getting exposed because of unsupervised docker configuration.**
 
 - Attack Vector - 
 In docker-compose.yml, the ports instruction maps a port on host machine to a port inside the container. If we use a short syntax like ports: 5432:5432, Docker defaults to bind the host port to all available network interfaces (0.0.0.0). 
@@ -172,12 +176,12 @@ This is safe only because the docker-compose.yml uses expose instead of ports fo
 Check docker-compose.yml for implementation
 - Implementation Status: PENDING
 
-## 4. Security Tests Conducted
+## **4. Security Tests Conducted**
 
 
-## 5. ZAP Scan findings
+## **5. ZAP Scan findings**
 
 
-## 6. Security Checklist and Residual risks
+## **6. Security Checklist and Residual risks**
 
 _ documented after all tests are completed at the final week _
