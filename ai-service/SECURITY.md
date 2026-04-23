@@ -165,6 +165,13 @@ Configure the Docker Compose file so that PostgreSQL and Redis do not publish th
 .env is included in .gitignore so actual database credentials never end up on GitHub.
 .env.example file only has placeholder values and no real credentials are committed.
 
+- Note: Flask runs with host='0.0.0.0' which is required for the Java 
+backend to reach it over the Docker internal network.
+This is safe only because the docker-compose.yml uses expose instead of ports for the AI service. 
+
+Check docker-compose.yml for implementation
+- Implementation Status: PENDING
+
 ## 4. Security Tests Conducted
 
 
