@@ -14,22 +14,38 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Spring Security configuration.
  *
- * Day 1  — Permit all so the app starts cleanly; Swagger is accessible.
- * Day 5  — Java Developer 1 will add JwtAuthFilter and lock down routes.
- * Day 6  — Java Developer 2 will add @PreAuthorize RBAC annotations.
+ * SECURITY NOTE:
+ * - Swagger UI and API docs are NOT public — require JWT token.
+ * - Only /api/auth/login and /api/auth/register are truly public.
+ * - All other endpoints require authentication.
+ * - Day 5: Java Developer 1 wires JwtAuthFilter here.
+ * - Day 6: Java Developer 2 adds @PreAuthorize RBAC.
  */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity   // enables @PreAuthorize on controller / service methods
 public class SecurityConfig {
 
-    // ── Public endpoints (no token required) ─────────────────────────────────
+    /**
+     * Only these endpoints are truly public — no JWT required.
+     * Swagger and api-docs are intentionally excluded to prevent
+     * unauthenticated API discovery (flagged by OWASP ZAP).
+     */
     private static final String[] PUBLIC_URLS = {
-            "/api/auth/**",
+            "/api/auth/login",
+            "/api/auth/register",
+            "/actuator/health"     // health check only — no sensitive data
+    };
+
+    /**
+     * Swagger/OpenAPI — accessible only in non-production profiles.
+     * Requires authentication in all environments.
+     * Access via: Authorization: Bearer <token> in Swagger UI.
+     */
+    private static final String[] SWAGGER_URLS = {
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/api-docs/**",
-            "/actuator/health"
+            "/api-docs/**"
     };
 
     @Bean
@@ -40,9 +56,18 @@ public class SecurityConfig {
                     sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(PUBLIC_URLS).permitAll()
-                    // TODO Day 5: add JwtAuthFilter before UsernamePasswordAuthenticationFilter
-                    .anyRequest().permitAll()  // <- change to .authenticated() on Day 5
-            );
+                    // Swagger requires authentication — prevents unauthenticated API discovery
+                    .requestMatchers(SWAGGER_URLS).authenticated()
+                    // All other requests require a valid JWT
+                    .anyRequest().authenticated()
+            )
+            // Disable default form login and HTTP Basic — JWT only
+            .formLogin(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable);
+
+        // TODO Day 5: add JwtAuthFilter before UsernamePasswordAuthenticationFilter
+        // http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
