@@ -1,5 +1,6 @@
 package com.internship.tool.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -10,38 +11,33 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Spring Security configuration.
+ * Tool-53 — Spring Security Configuration (Updated Day 5)
  *
- * SECURITY NOTE:
- * - Swagger UI and API docs are NOT public — require JWT token.
- * - Only /api/auth/login and /api/auth/register are truly public.
- * - All other endpoints require authentication.
- * - Day 5: Java Developer 1 wires JwtAuthFilter here.
- * - Day 6: Java Developer 2 adds @PreAuthorize RBAC.
+ * SECURITY NOTES:
+ * - Only /api/auth/login and /api/auth/register are public
+ * - Swagger requires JWT authentication — prevents unauthenticated API discovery
+ * - All other endpoints require valid JWT
+ * - Sessions are STATELESS — no server-side session stored
+ * - Form login and HTTP Basic are disabled — JWT only
+ * - JwtAuthFilter runs before every request
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity   // enables @PreAuthorize on controller / service methods
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    /**
-     * Only these endpoints are truly public — no JWT required.
-     * Swagger and api-docs are intentionally excluded to prevent
-     * unauthenticated API discovery (flagged by OWASP ZAP).
-     */
+    private final JwtAuthFilter jwtAuthFilter;
+
     private static final String[] PUBLIC_URLS = {
             "/api/auth/login",
             "/api/auth/register",
-            "/actuator/health"     // health check only — no sensitive data
+            "/actuator/health"
     };
 
-    /**
-     * Swagger/OpenAPI — accessible only in non-production profiles.
-     * Requires authentication in all environments.
-     * Access via: Authorization: Bearer <token> in Swagger UI.
-     */
     private static final String[] SWAGGER_URLS = {
             "/swagger-ui.html",
             "/swagger-ui/**",
@@ -56,17 +52,12 @@ public class SecurityConfig {
                     sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(PUBLIC_URLS).permitAll()
-                    // Swagger requires authentication — prevents unauthenticated API discovery
                     .requestMatchers(SWAGGER_URLS).authenticated()
-                    // All other requests require a valid JWT
                     .anyRequest().authenticated()
             )
-            // Disable default form login and HTTP Basic — JWT only
             .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable);
-
-        // TODO Day 5: add JwtAuthFilter before UsernamePasswordAuthenticationFilter
-        // http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
