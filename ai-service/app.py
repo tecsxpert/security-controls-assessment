@@ -10,6 +10,7 @@ from middleware.input_sanitize import register_sanitization_hooks
 from middleware.rate_limit import register_rate_limiting
 
 from routes.describe import describe_bp
+from routes.recommend import recommend_bp
 
 # register logging
 logging.basicConfig(
@@ -34,6 +35,7 @@ register_rate_limiting(app)
 
 # register routes below
 app.register_blueprint(describe_bp)
+app.register_blueprint(recommend_bp)
 
 @app.route('/', methods=['GET'])
 def health():
