@@ -3,6 +3,7 @@
     - loads prompt template, calls groq client and returns description in JSON format
 """
 
+import os
 from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify
 from services.groq_client import GroqService
@@ -13,12 +14,14 @@ groq_service = GroqService()
 describe_bp = Blueprint('describe',__name__)
 
 def load_prompt_template(filename):
-    with open(f"prompts/{filename}","r") as f:
+    curr_dir = os.path.dirname(__file__)
+    template_path = os.path.join(curr_dir,"..","prompts",filename)
+    with open(template_path,"r",encoding="utf-8") as f:
         return f.read()
 
-@describe_bp.route("/describe", methods=["POST"])
+@describe_bp.route("/describe", methods=['POST'])
 @limiter.limit("30 per minute")
-@sanitize_request_body(["text"])
+@sanitize_request_body(["rule"])
 def describe():
     data = request.get_json()
     rule_text = data.get("rule")
