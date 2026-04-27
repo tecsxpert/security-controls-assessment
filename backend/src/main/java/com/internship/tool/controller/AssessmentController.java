@@ -17,6 +17,12 @@ public class AssessmentController {
 
     private final AssessmentRepository repo;
 
+    // ✅ 0. CREATE (POST)
+    @PostMapping
+    public Assessment create(@RequestBody Assessment assessment) {
+        return repo.save(assessment);
+    }
+
     // ✅ 1. UPDATE (PUT)
     @PutMapping("/{id}")
     public Assessment update(@PathVariable Long id, @RequestBody Assessment updated) {
@@ -46,21 +52,28 @@ public class AssessmentController {
     }
 
 
-    // ✅ 3. SEARCH API
+    // ✅ 3. GET BY ID
+    @GetMapping("/{id}")
+    public Assessment getById(@PathVariable Long id) {
+        return repo.findById(id).orElseThrow(() -> new RuntimeException("Assessment not found"));
+    }
+
+
+    // ✅ 4. SEARCH API
     @GetMapping("/search")
     public List<Assessment> search(@RequestParam String q) {
         return repo.searchByKeyword(q);
     }
 
 
-    // ✅ 4. FILTER BY STATUS
+    // ✅ 5. FILTER BY STATUS
     @GetMapping("/status")
     public List<Assessment> filterByStatus(@RequestParam String status) {
         return repo.findByStatus(status);
     }
 
 
-    // ✅ 5. PAGINATION + SORT
+    // ✅ 6. PAGINATION + SORT
     @GetMapping("/all")
     public Page<Assessment> getAll(
             @RequestParam int page,
@@ -79,7 +92,7 @@ public class AssessmentController {
     }
 
 
-    // ✅ 6. STATS API (Dashboard KPIs)
+    // ✅ 7. STATS API (Dashboard KPIs)
     @GetMapping("/stats")
     public Map<String, Object> getStats() {
 
