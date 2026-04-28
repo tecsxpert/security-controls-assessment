@@ -4,6 +4,7 @@ import com.internship.tool.entity.Assessment;
 import com.internship.tool.repository.AssessmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -18,12 +19,14 @@ public class AssessmentController {
     private final AssessmentRepository repo;
 
     // ✅ 0. CREATE (POST)
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PostMapping
     public Assessment create(@RequestBody Assessment assessment) {
         return repo.save(assessment);
     }
 
     // ✅ 1. UPDATE (PUT)
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     @PutMapping("/{id}")
     public Assessment update(@PathVariable Long id, @RequestBody Assessment updated) {
 
@@ -39,6 +42,7 @@ public class AssessmentController {
 
 
     // ✅ 2. DELETE (Soft Delete)
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public String delete(@PathVariable Long id) {
 
@@ -74,6 +78,7 @@ public class AssessmentController {
 
 
     // ✅ 6. PAGINATION + SORT
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','VIEWER')")
     @GetMapping("/all")
     public Page<Assessment> getAll(
             @RequestParam int page,
