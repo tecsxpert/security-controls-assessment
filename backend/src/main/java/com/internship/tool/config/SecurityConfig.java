@@ -5,27 +5,59 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Tool-53 — Spring Security Configuration (Updated Day 5)
+ *
+ * SECURITY NOTES:
+ * - Only /api/auth/login and /api/auth/register are public
+ * - Swagger requires JWT authentication — prevents unauthenticated API discovery
+ * - All other endpoints require valid JWT
+ * - Sessions are STATELESS — no server-side session stored
+ * - Form login and HTTP Basic are disabled — JWT only
+ * - JwtAuthFilter runs before every request
+ */
 @Configuration
+@EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+    private final JwtAuthFilter jwtAuthFilter;
+
+    private static final String[] PUBLIC_URLS = {
+            "/api/auth/login",
+            "/api/auth/register",
+            "/actuator/health"
+    };
+
+    private static final String[] SWAGGER_URLS = {
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/api-docs/**"
+    };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http.csrf().disable()
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(sm ->
+                    sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(PUBLIC_URLS).permitAll()
+                    .requestMatchers(SWAGGER_URLS).authenticated()
+                    .anyRequest().authenticated()
+            )
+            .formLogin(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
