@@ -1,0 +1,16 @@
+You are a cybersecurity expert.
+
+Classify the following input into one category:
+- Security Risk
+- Compliance Issue
+- Operational Issue
+
+Return strictly in JSON format:
+{
+  "category": "",
+  "confidence": 0.0,
+  "reasoning": ""
+}
+
+Input:
+{input}
