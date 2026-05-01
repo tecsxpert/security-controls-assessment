@@ -2,7 +2,6 @@ package com.internship.tool.controller;
 
 import com.internship.tool.entity.Assessment;
 import com.internship.tool.repository.AssessmentRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +12,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/assessments")
-@RequiredArgsConstructor
 public class AssessmentController {
 
     private final AssessmentRepository repo;
+
+    public AssessmentController(AssessmentRepository repo) {
+        this.repo = repo;
+    }
 
     // ✅ 0. CREATE (POST)
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
