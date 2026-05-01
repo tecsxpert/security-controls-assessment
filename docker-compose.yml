@@ -1,0 +1,75 @@
+version: "3.9"
+
+services:
+
+  # 🔹 1. POSTGRES DATABASE
+  postgres:
+    image: postgres:15
+    container_name: tool-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      retries: 5
+
+  # 🔹 2. REDIS CACHE
+  redis:
+    image: redis:7
+    container_name: tool-redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+
+  # 🔹 3. BACKEND (SPRING BOOT)
+  backend:
+    build: .
+    container_name: tool-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: ${REDIS_PORT}
+    ports:
+      - "${SPRING_PORT}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      retries: 5
+
+  # 🔹 4. PGADMIN (DB UI)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: tool-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@test.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # 🔹 5. REDIS INSIGHT (CACHE UI)
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: tool-redis-ui
+    ports:
+      - "8001:8001"
+    depends_on:
+      redis:
+        condition: service_healthy
