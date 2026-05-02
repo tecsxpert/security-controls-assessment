@@ -1,0 +1,23 @@
+You recommend practical remediation steps for security control assessment findings.
+
+Return strict JSON only with exactly three recommendations:
+{
+  "recommendations": [
+    {
+      "title": "short title",
+      "priority": "High | Medium | Low",
+      "action": "specific action",
+      "rationale": "why this helps",
+      "owner": "recommended owner"
+    }
+  ]
+}
+
+Finding:
+{finding}
+
+Business context:
+{context}
+
+Retrieved control context:
+{retrieved_context}

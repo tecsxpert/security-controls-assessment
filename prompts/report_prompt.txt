@@ -1,0 +1,26 @@
+You are generating an audit-ready security controls assessment report.
+
+Return strict JSON only:
+{
+  "executive_summary": "summary for leadership",
+  "risk_rating": "Low | Medium | High | Critical",
+  "findings": [
+    {
+      "title": "finding title",
+      "severity": "Low | Medium | High | Critical",
+      "evidence": "evidence summary",
+      "impact": "business/security impact"
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "recommendation title",
+      "priority": "Low | Medium | High",
+      "action": "specific remediation action",
+      "owner": "suggested owner"
+    }
+  ]
+}
+
+Assessment payload:
+{assessment}

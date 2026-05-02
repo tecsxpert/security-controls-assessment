@@ -1,0 +1,12 @@
+[
+  {"id": "case-001", "endpoint": "/categorise", "payload": {"text": "Firewall change approvals are missing."}, "expected": {"category": "Compliance Issue"}},
+  {"id": "case-002", "endpoint": "/categorise", "payload": {"text": "Public S3 bucket exposes customer records."}, "expected": {"category": "Security Risk"}},
+  {"id": "case-003", "endpoint": "/categorise", "payload": {"text": "Backup job failed due to storage capacity."}, "expected": {"category": "Operational Issue"}},
+  {"id": "case-004", "endpoint": "/describe", "payload": {"control": "Privileged access requires MFA."}, "expected_keys": ["description", "objectives"]},
+  {"id": "case-005", "endpoint": "/describe", "payload": {"control": "Security logs are retained for 365 days."}, "expected_keys": ["description", "evidence_examples"]},
+  {"id": "case-006", "endpoint": "/recommend", "payload": {"finding": "No access review evidence exists.", "context": {"system": "ERP"}}, "expected_keys": ["recommendations"]},
+  {"id": "case-007", "endpoint": "/recommend", "payload": {"finding": "Database backups are not encrypted.", "context": {"data": "PII"}}, "expected_keys": ["recommendations"]},
+  {"id": "case-008", "endpoint": "/generate-report", "payload": {"assessment": {"name": "IAM review", "controls": [{"id": "IAM-01", "status": "gap"}]}}, "expected_keys": ["executive_summary", "risk_rating"]},
+  {"id": "case-009", "endpoint": "/analyse-document", "payload": {"document": "Policy: access must be reviewed quarterly.", "metadata": {"source": "policy"}}, "expected_keys": ["summary", "metadata"]},
+  {"id": "case-010", "endpoint": "/query", "payload": {"question": "What evidence is needed for MFA?"}, "expected_keys": ["answer"]}
+]

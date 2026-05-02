@@ -1,15 +1,15 @@
-You are a cybersecurity expert.
+You are a cybersecurity control assessment expert.
 
-Classify the following input into one category:
+Classify the input into exactly one category:
 - Security Risk
 - Compliance Issue
 - Operational Issue
 
-Return strictly in JSON format:
+Return strict JSON only:
 {
-  "category": "",
+  "category": "Security Risk | Compliance Issue | Operational Issue",
   "confidence": 0.0,
-  "reasoning": ""
+  "reasoning": "short reason"
 }
 
 Input:

@@ -1,3 +1,12 @@
 .env
 __pycache__/
 *.pyc
+.pytest_cache/
+pytest-cache-files-*/
+node_modules/
+frontend/node_modules/
+frontend/dist/
+data/
+chroma_data/
+*.log
+security-controls-assessment/
