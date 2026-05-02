@@ -1,7 +1,7 @@
 package com.internship.tool.controller;
 
 import com.internship.tool.entity.Assessment;
-import com.internship.tool.repository.AssessmentRepository;
+import com.internship.tool.service.AssessmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AssessmentController {
 
-    private final AssessmentRepository repo;
+    private final AssessmentService service;
+
+    // ✅ CREATE
+    @PostMapping("/create")
+    public Assessment create(@RequestBody Assessment a) {
+        return service.create(a);
+    }
 
     // ✅ 1. UPDATE (PUT)
     @PutMapping("/{id}")
