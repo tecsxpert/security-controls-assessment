@@ -6,6 +6,7 @@ import com.internship.tool.service.AssessmentService;
 import com.internship.tool.service.ExportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -35,18 +36,25 @@ public class AssessmentController {
     // ✅ 1. UPDATE (PUT)
     @PutMapping("/{id}")
     public Assessment update(@PathVariable Long id, @RequestBody Assessment updated) {
+        return service.update(id, updated);
+    }
 
-        Assessment existing = repo.findById(id)
+    // ✅ GET BY ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+
+        Assessment a = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Assessment not found"));
 
-        existing.setName(updated.getName());
-        existing.setDescription(updated.getDescription());
-        existing.setStatus(updated.getStatus());
-        existing.setScore(updated.getScore());
-        existing.setCategory(updated.getCategory());
-        existing.setCreatedBy(updated.getCreatedBy());
-
-        return repo.save(existing);
+        return ResponseEntity.ok(
+                Map.of(
+                    "id", a.getId(),
+                    "name", a.getName(),
+                    "status", a.getStatus(),
+                    "score", a.getScore(),
+                    "category", a.getCategory()
+                )
+        );
     }
 
 

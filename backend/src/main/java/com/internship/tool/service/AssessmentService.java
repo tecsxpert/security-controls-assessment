@@ -39,9 +39,30 @@ public class AssessmentService {
         Assessment existing = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Assessment not found"));
 
-        existing.setName(updated.getName());
-        existing.setStatus(updated.getStatus());
-        existing.setScore(updated.getScore());
+        // ✅ Prevent null overwrite
+        if (updated.getName() != null) {
+            existing.setName(updated.getName());
+        }
+
+        if (updated.getStatus() != null) {
+            existing.setStatus(updated.getStatus());
+        }
+
+        if (updated.getScore() >= 0 && updated.getScore() <= 100) {
+            existing.setScore(updated.getScore());
+        }
+
+        if (updated.getCategory() != null) {
+            existing.setCategory(updated.getCategory());
+        }
+
+        if (updated.getDescription() != null) {
+            existing.setDescription(updated.getDescription());
+        }
+
+        if (updated.getCreatedBy() != null) {
+            existing.setCreatedBy(updated.getCreatedBy());
+        }
 
         return repo.save(existing);
     }
