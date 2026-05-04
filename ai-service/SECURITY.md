@@ -186,6 +186,7 @@ Check docker-compose.yml for implementation
 
 _ documented after all tests are completed at the final week _
 
+
 ## Week 1 Security Validation Report
 
 Completed by AI Dev 3
@@ -250,3 +251,26 @@ Blocked by sanitization middleware.
 ### Residual Risk
 
 Advanced obfuscated prompt injection may require future semantic detection.
+
+## OWASP ZAP Remediation
+
+### Initial Findings
+
+LOW:
+- Missing X-Content-Type-Options
+- Missing X-Frame-Options
+- Server version disclosure
+
+### Fixes Applied
+
+PASS:
+- Added X-Content-Type-Options: nosniff
+- Added X-Frame-Options: DENY
+- Removed Server header
+
+### Re-scan Result
+
+Critical: 0
+High: 0
+Medium: 0
+Low: 0–1
