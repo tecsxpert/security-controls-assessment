@@ -14,12 +14,20 @@ public class AssessmentService {
     // ✅ CREATE with validation
     public Assessment create(Assessment a) {
 
-        if (a.getName() == null || a.getName().isEmpty()) {
+        if (a == null) {
+            throw new IllegalArgumentException("Request body cannot be null");
+        }
+
+        if (a.getName() == null || a.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Name is required");
         }
 
         if (a.getScore() < 0 || a.getScore() > 100) {
-            throw new IllegalArgumentException("Score must be 0-100");
+            throw new IllegalArgumentException("Score must be between 0 and 100");
+        }
+
+        if (a.getStatus() == null) {
+            a.setStatus("PENDING"); // default
         }
 
         return repo.save(a);

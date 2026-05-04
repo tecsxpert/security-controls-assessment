@@ -10,16 +10,22 @@ public class GlobalExceptionHandler {
 
     // 🔴 Handle not found
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntime(RuntimeException ex) {
+    public ResponseEntity<?> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", ex.getMessage()));
+                .body(Map.of(
+                        "error", ex.getMessage(),
+                        "status", 404
+                ));
     }
 
     // 🔴 Handle bad request
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleBadRequest(Exception ex) {
+    public ResponseEntity<?> handleValidation(Exception ex) {
         return ResponseEntity.badRequest()
-                .body(Map.of("error", ex.getMessage()));
+                .body(Map.of(
+                        "error", ex.getMessage(),
+                        "status", 400
+                ));
     }
 
     // 🔴 Catch all (prevent crash)

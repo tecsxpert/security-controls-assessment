@@ -1,7 +1,9 @@
 package com.internship.tool.controller;
 
 import com.internship.tool.entity.Assessment;
+import com.internship.tool.repository.AssessmentRepository;
 import com.internship.tool.service.AssessmentService;
+import com.internship.tool.service.ExportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +18,17 @@ import java.util.Map;
 public class AssessmentController {
 
     private final AssessmentService service;
+    private final AssessmentRepository repo;
+    private final ExportService exportService;
 
     // ✅ CREATE
     @PostMapping("/create")
-    public Assessment create(@RequestBody Assessment a) {
+    public Assessment create(@RequestBody(required = false) Assessment a) {
+
+        if (a == null) {
+            throw new IllegalArgumentException("Invalid request body");
+        }
+
         return service.create(a);
     }
 
@@ -31,8 +40,11 @@ public class AssessmentController {
                 .orElseThrow(() -> new RuntimeException("Assessment not found"));
 
         existing.setName(updated.getName());
+        existing.setDescription(updated.getDescription());
         existing.setStatus(updated.getStatus());
         existing.setScore(updated.getScore());
+        existing.setCategory(updated.getCategory());
+        existing.setCreatedBy(updated.getCreatedBy());
 
         return repo.save(existing);
     }
@@ -55,14 +67,18 @@ public class AssessmentController {
     // ✅ 3. SEARCH API
     @GetMapping("/search")
     public List<Assessment> search(@RequestParam String q) {
-        return repo.searchByKeyword(q);
+        return repo.optimizedSearch(q);
     }
 
 
     // ✅ 4. FILTER BY STATUS
     @GetMapping("/status")
-    public List<Assessment> filterByStatus(@RequestParam String status) {
-        return repo.findByStatus(status);
+    public Page<Assessment> filterByStatus(
+            @RequestParam String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return repo.findByStatus(status, PageRequest.of(page, size));
     }
 
 
@@ -99,5 +115,11 @@ public class AssessmentController {
         stats.put("pending", pending);
 
         return stats;
+    }
+
+    // ✅ 7. EXPORT CSV
+    @GetMapping(value = "/export", produces = "text/csv")
+    public String exportCsv() {
+        return exportService.generateCSV();
     }
 }
