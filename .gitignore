@@ -1,0 +1,12 @@
+# Maven output
+**/target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Node modules
+frontend/node_modules/
+
+# Local runtime files
+*.log
