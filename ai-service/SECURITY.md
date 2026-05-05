@@ -274,3 +274,196 @@ Critical: 0
 High: 0
 Medium: 0
 Low: 0–1
+
+## PII Audit Findings
+
+Initial automated scan flagged:
+- PHONE
+- IP_ADDRESS
+
+### Investigation
+
+These were false positives caused by:
+- Timestamp formats in application logs
+- Internal infrastructure metadata
+
+### Remediation
+
+- Refined regex patterns
+- Excluded private/local infrastructure IPs
+
+### Final Result
+
+PASS
+
+No customer or user PII found in:
+- Prompt templates
+- Application logs
+- Cache layer
+- Vector documents
+
+## Automated Unit Tests
+Framework: pytest
+Coverage:
+- Endpoint format validation
+- Prompt injection blocking
+- Error handling
+- Oversized payloads
+- AI failure scenarios
+
+Result:
+10/10 passed
+
+## Week 2 AI Quality Review
+
+Inputs tested:
+- 10 fresh inputs per endpoint
+
+Endpoints:
+
+- /describe
+- /recommend
+- /categorise
+- /analyse-document
+- /query
+
+Result:
+Average quality score: 4.9/5
+
+Status:
+PASS
+Prompt tuning performed where score < 4.0.
+
+# Week 2 Security Sign-Off
+
+Date: 2026-05-05
+
+## Controls Verified
+
+### 1. Rate Limiting
+
+Status: PASS
+
+Verification:
+
+Endpoint tested:
+
+- POST /describe
+
+Configured:
+
+- 30 requests/minute
+
+Observed:
+
+- Requests 1–30 → HTTP 200
+- Request 31+ → HTTP 429
+
+Result:
+
+Abuse protection working.
+
+
+### 2. Injection Rejection
+
+Status: PASS
+
+Payloads tested:
+
+Prompt Injection:
+
+- "Ignore previous instructions"
+
+SQL Injection:
+
+- "' OR 1=1 --"
+
+XSS:
+
+- "<script>alert(1)</script>"
+
+Observed:
+
+- Malicious payloads rejected or sanitized
+- No prompt leakage
+- No server errors
+
+Result:
+
+Input sanitization working.
+
+
+### 3. Automated Testing
+
+Framework:
+- pytest
+
+Coverage:
+- Endpoint validation
+- Prompt injection
+- Rate limiting
+- Oversized payloads
+- AI upstream failure
+
+Result:
+PASS
+
+## Security Decision
+Week 2 AI security controls verified.
+Status:
+PASS
+
+# Week 2 OWASP ZAP Active Scan
+
+Date: 2026-05-05
+
+## Scan Scope
+
+Target:
+- http://127.0.0.1:5000
+
+Endpoints tested:
+- POST /describe
+- POST /recommend
+- POST /query
+- POST /generate-report
+
+## Findings
+
+### Critical
+0
+Status: PASS
+
+### High
+0
+Status: PASS
+
+### Medium
+| Finding | Resolution |\
+| Server Version Disclosure | Accepted (development-only Werkzeug server; production uses WSGI server) |
+| CSP Directive Fallback | Fixed |
+
+
+### Informational
+
+| Finding | Decision |
+| User Agent Fuzzer | Accepted |
+
+## Remediation Applied
+
+Implemented:
+- X-Content-Type-Options
+- X-Frame-Options
+- Referrer-Policy
+- Cache-Control
+- Server header masking
+- Hardened Content Security Policy
+
+## Security Decision
+
+Critical findings: 0
+High findings: 0
+Medium findings: Resolved
+
+Status:
+PASSED

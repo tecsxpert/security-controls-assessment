@@ -16,10 +16,14 @@ from routes.test_rag import test_rag_bp
 from routes.generate_report import generate_report_bp
 from routes.query import query_bp
 from routes.health import health_bp
-
+from routes.analyse_document import analyse_document_bp
+from routes.batch_process import batch_process_bp
+from routes.job_status import job_status_bp
 
 from services.rag_pipeline import seed_collection
 
+werkzeug_logger = logging.getLogger("werkzeug")
+werkzeug_logger.setLevel(logging.ERROR)
 # register logging
 logging.basicConfig(
     filename='application_logs.log',
@@ -49,6 +53,9 @@ app.register_blueprint(test_rag_bp)
 app.register_blueprint(generate_report_bp)
 app.register_blueprint(query_bp)
 app.register_blueprint(health_bp)
+app.register_blueprint(analyse_document_bp)
+app.register_blueprint(batch_process_bp)
+app.register_blueprint(job_status_bp)
 
 seed_collection()
 
