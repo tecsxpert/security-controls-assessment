@@ -31,7 +31,7 @@ public class Assessment {
 
     @Min(0)
     @Max(100)
-    private int score;
+    private Integer score;
 
     private String status;
 

@@ -24,13 +24,11 @@ public class AssessmentController {
 
     // ✅ CREATE
     @PostMapping("/create")
-    public Assessment create(@RequestBody(required = false) Assessment a) {
-
+    public ResponseEntity<?> create(@RequestBody(required = false) Assessment a) {
         if (a == null) {
-            throw new IllegalArgumentException("Invalid request body");
+            throw new IllegalArgumentException("Request body is required");
         }
-
-        return service.create(a);
+        return ResponseEntity.ok(service.create(a));
     }
 
     // ✅ 1. UPDATE (PUT)
@@ -43,18 +41,15 @@ public class AssessmentController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
 
-        Assessment a = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Assessment not found"));
+        Assessment a = service.getById(id);
 
-        return ResponseEntity.ok(
-                Map.of(
-                    "id", a.getId(),
-                    "name", a.getName(),
-                    "status", a.getStatus(),
-                    "score", a.getScore(),
-                    "category", a.getCategory()
-                )
-        );
+        return ResponseEntity.ok(Map.of(
+                "id", a.getId(),
+                "name", a.getName(),
+                "status", a.getStatus(),
+                "score", a.getScore(),
+                "category", a.getCategory()
+        ));
     }
 
 
