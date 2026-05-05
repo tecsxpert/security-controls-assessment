@@ -91,3 +91,4 @@ class GroqService:
         except Exception as e:
             logger.error(f"Groq API Error: {str(e)}")
             raise # trigger retry if any other exceptions
+        

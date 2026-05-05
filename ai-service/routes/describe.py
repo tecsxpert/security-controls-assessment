@@ -48,3 +48,4 @@ def describe():
         }),200
     except Exception as e:
         return jsonify({"error":"Internal server error", "detail":str(e)}),500
+        
