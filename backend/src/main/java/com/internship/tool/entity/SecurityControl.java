@@ -23,6 +23,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "security_controls")
 @EntityListeners(AuditingEntityListener.class)
+ */
+@Entity
+@Table(name = "security_controls")
+@EntityListeners(AuditingEntityListener.class)  // enables @CreatedDate / @LastModifiedDate
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,6 +46,7 @@ public class SecurityControl {
 
     @Column(name = "control_id", nullable = false, unique = true, length = 50)
     private String controlId;
+    private String controlId;             // e.g. "CC-001", "AC-101"
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
@@ -62,6 +67,21 @@ public class SecurityControl {
 
     @Column(name = "owner", length = 150)
     private String owner;
+    private String category;             // e.g. "Access Control", "Network Security"
+
+    @Column(name = "status", nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    private ControlStatus status;        // COMPLIANT, NON_COMPLIANT, PARTIAL, NOT_ASSESSED
+
+    @Column(name = "risk_level", nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    private RiskLevel riskLevel;         // CRITICAL, HIGH, MEDIUM, LOW
+
+    @Column(name = "score")
+    private Integer score;               // 0 - 100
+
+    @Column(name = "owner", length = 150)
+    private String owner;                // Person responsible
 
     @Column(name = "department", length = 150)
     private String department;
@@ -111,6 +131,25 @@ public class SecurityControl {
     private Boolean isDeleted = false;
 
     // ── Audit Fields ─────────────────────────────────────────────────────────
+    private String evidence;             // Proof of compliance
+
+    @Column(name = "remediation_plan", columnDefinition = "TEXT")
+    private String remediationPlan;      // Steps to fix if non-compliant
+
+    @Column(name = "ai_description", columnDefinition = "TEXT")
+    private String aiDescription;        // AI-generated description (filled async)
+
+    @Column(name = "ai_recommendations", columnDefinition = "TEXT")
+    private String aiRecommendations;    // AI-generated recommendations
+
+    @Column(name = "file_path", length = 500)
+    private String filePath;             // Uploaded evidence file path
+
+    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;   // Soft delete flag
+
+    // ── Audit Fields (auto-filled by Spring Data JPA Auditing) ───────────────
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -125,6 +164,10 @@ public class SecurityControl {
 
     @Column(name = "updated_by", length = 150)
     private String updatedBy;
+    private String createdBy;            // Set manually from JWT token
+
+    @Column(name = "updated_by", length = 150)
+    private String updatedBy;            // Set manually from JWT token
 
     // ── Enums ─────────────────────────────────────────────────────────────────
 

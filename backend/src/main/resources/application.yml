@@ -92,6 +92,9 @@ ai:
   service:
     url: ${AI_SERVICE_URL:http://ai-service:5000}
     base-url: ${AI_SERVICE_URL:http://ai-service:5000}
+ai:
+  service:
+    base-url: ${AI_SERVICE_URL}
     timeout-seconds: 10
 
 # ── Swagger / OpenAPI ─────────────────────────────────────────────────────────
