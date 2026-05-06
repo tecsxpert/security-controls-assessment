@@ -16,6 +16,13 @@ import java.time.LocalDateTime;
  * Tool-53 — Security Controls Assessment
  * Main JPA Entity — maps to the "security_controls" table in PostgreSQL.
  * Schema is created by Flyway V1 migration (Java Developer 2).
+ *
+ * Updated: Added aiDescription (length 5000) and aiStatus (length 100)
+ * fields with explicit getters/setters as requested by teammate.
+ */
+@Entity
+@Table(name = "security_controls")
+@EntityListeners(AuditingEntityListener.class)
  */
 @Entity
 @Table(name = "security_controls")
@@ -38,12 +45,28 @@ public class SecurityControl {
     private String controlName;
 
     @Column(name = "control_id", nullable = false, unique = true, length = 50)
+    private String controlId;
     private String controlId;             // e.g. "CC-001", "AC-101"
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "category", nullable = false, length = 100)
+    private String category;
+
+    @Column(name = "status", nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    private ControlStatus status;
+
+    @Column(name = "risk_level", nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    private RiskLevel riskLevel;
+
+    @Column(name = "score")
+    private Integer score;
+
+    @Column(name = "owner", length = 150)
+    private String owner;
     private String category;             // e.g. "Access Control", "Network Security"
 
     @Column(name = "status", nullable = false, length = 50)
@@ -70,6 +93,44 @@ public class SecurityControl {
     private LocalDateTime nextReviewDate;
 
     @Column(name = "evidence", columnDefinition = "TEXT")
+    private String evidence;
+
+    @Column(name = "remediation_plan", columnDefinition = "TEXT")
+    private String remediationPlan;
+
+    // ── AI Fields ─────────────────────────────────────────────────────────────
+
+    /**
+     * AI-generated description — filled async after record creation.
+     * Length 5000 to accommodate detailed AI responses.
+     * Added as requested by teammate for AiServiceClient integration.
+     */
+    @Column(name = "ai_description", length = 5000)
+    private String aiDescription;
+
+    /**
+     * AI processing status — tracks state of AI analysis.
+     * e.g. PENDING, COMPLETED, FAILED, FALLBACK
+     * Added as requested by teammate for AiServiceClient integration.
+     */
+    @Column(name = "ai_status", length = 100)
+    private String aiStatus;
+
+    @Column(name = "ai_recommendations", columnDefinition = "TEXT")
+    private String aiRecommendations;
+
+    // ── File ──────────────────────────────────────────────────────────────────
+
+    @Column(name = "file_path", length = 500)
+    private String filePath;
+
+    // ── Soft Delete ───────────────────────────────────────────────────────────
+
+    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;
+
+    // ── Audit Fields ─────────────────────────────────────────────────────────
     private String evidence;             // Proof of compliance
 
     @Column(name = "remediation_plan", columnDefinition = "TEXT")
@@ -99,6 +160,10 @@ public class SecurityControl {
     private LocalDateTime updatedAt;
 
     @Column(name = "created_by", length = 150, updatable = false)
+    private String createdBy;
+
+    @Column(name = "updated_by", length = 150)
+    private String updatedBy;
     private String createdBy;            // Set manually from JWT token
 
     @Column(name = "updated_by", length = 150)
@@ -118,5 +183,24 @@ public class SecurityControl {
         HIGH,
         MEDIUM,
         LOW
+    }
+
+    // ── Explicit Getters and Setters for AI fields ────────────────────────────
+    // Added as requested by teammate for AiServiceClient.java (PR #26)
+
+    public String getAiDescription() {
+        return aiDescription;
+    }
+
+    public void setAiDescription(String aiDescription) {
+        this.aiDescription = aiDescription;
+    }
+
+    public String getAiStatus() {
+        return aiStatus;
+    }
+
+    public void setAiStatus(String aiStatus) {
+        this.aiStatus = aiStatus;
     }
 }
