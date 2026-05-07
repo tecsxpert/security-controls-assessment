@@ -71,11 +71,3 @@ def query_docs(question, top_k=3):
     )
 
     return results
-
-
-def test_rag_docs(question):
-    """
-    Test the RAG pipeline with a question and return matching documents.
-    """
-    seed_collection()
-    return query_docs(question)
