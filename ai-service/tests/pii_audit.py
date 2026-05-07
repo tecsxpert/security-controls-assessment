@@ -13,7 +13,7 @@ Checks:
 - Aadhaar-like numbers
 - IP addresses
 
-to test: run flask app and then execute this file/
+to test, run flask, execute the application
 """
 
 import re
