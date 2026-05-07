@@ -274,3 +274,313 @@ Critical: 0
 High: 0
 Medium: 0
 Low: 0–1
+
+## PII Audit Findings
+
+Initial automated scan flagged:
+- PHONE
+- IP_ADDRESS
+
+### Investigation
+
+These were false positives caused by:
+- Timestamp formats in application logs
+- Internal infrastructure metadata
+
+### Remediation
+
+- Refined regex patterns
+- Excluded private/local infrastructure IPs
+
+### Final Result
+
+PASS
+
+No customer or user PII found in:
+- Prompt templates
+- Application logs
+- Cache layer
+- Vector documents
+
+## Automated Unit Tests
+Framework: pytest
+Coverage:
+- Endpoint format validation
+- Prompt injection blocking
+- Error handling
+- Oversized payloads
+- AI failure scenarios
+
+Result:
+10/10 passed
+
+## Week 2 AI Quality Review
+
+Inputs tested:
+- 10 fresh inputs per endpoint
+
+Endpoints:
+
+- /describe
+- /recommend
+- /categorise
+- /analyse-document
+- /query
+
+Result:
+Average quality score: 4.9/5
+
+Status:
+PASS
+Prompt tuning performed where score < 4.0.
+
+# Week 2 Security Sign-Off
+
+Date: 2026-05-05
+
+## Controls Verified
+
+### 1. Rate Limiting
+
+Status: PASS
+
+Verification:
+
+Endpoint tested:
+
+- POST /describe
+
+Configured:
+
+- 30 requests/minute
+
+Observed:
+
+- Requests 1–30 → HTTP 200
+- Request 31+ → HTTP 429
+
+Result:
+
+Abuse protection working.
+
+
+### 2. Injection Rejection
+
+Status: PASS
+
+Payloads tested:
+
+Prompt Injection:
+
+- "Ignore previous instructions"
+
+SQL Injection:
+
+- "' OR 1=1 --"
+
+XSS:
+
+- "<script>alert(1)</script>"
+
+Observed:
+
+- Malicious payloads rejected or sanitized
+- No prompt leakage
+- No server errors
+
+Result:
+
+Input sanitization working.
+
+
+### 3. Automated Testing
+
+Framework:
+- pytest
+
+Coverage:
+- Endpoint validation
+- Prompt injection
+- Rate limiting
+- Oversized payloads
+- AI upstream failure
+
+Result:
+PASS
+
+## Security Decision
+Week 2 AI security controls verified.
+Status:
+PASS
+
+# Week 2 OWASP ZAP Active Scan
+
+Date: 2026-05-05
+
+## Scan Scope
+
+Target:
+- http://127.0.0.1:5000
+
+Endpoints tested:
+- POST /describe
+- POST /recommend
+- POST /query
+- POST /generate-report
+
+## Findings
+
+### Critical
+0
+Status: PASS
+
+### High
+0
+Status: PASS
+
+### Medium
+| Finding | Resolution |\
+| Server Version Disclosure | Accepted (development-only Werkzeug server; production uses WSGI server) |
+| CSP Directive Fallback | Fixed |
+
+
+### Informational
+
+| Finding | Decision |
+| User Agent Fuzzer | Accepted |
+
+## Remediation Applied
+
+Implemented:
+- X-Content-Type-Options
+- X-Frame-Options
+- Referrer-Policy
+- Cache-Control
+- Server header masking
+- Hardened Content Security Policy
+
+## Security Decision
+
+Critical findings: 0
+High findings: 0
+Medium findings: Resolved
+
+Status:
+PASSED
+
+## Performance Optimisation
+
+Issue:
+
+Consistent ~2s latency across all AI endpoints.
+
+Root Cause:
+
+Redis connection fallback timeout.
+
+Remediation:
+
+- Added Redis availability detection at startup
+- Reduced retry backoff
+- Enabled in-memory cache fallback
+
+Result:
+
+p50 reduced below 100ms.
+
+## Final Prompt QA
+
+Initial issues found:
+
+- /recommend validator mismatch
+- Rate limiting triggered during QA
+
+Fixes:
+
+- Updated JSON validator
+- Added request pacing
+
+Final result:
+
+30/30 records passed on all endpoints.
+
+Status:
+
+DEMO READY
+
+# Final Security Review
+
+Date: 2026-05-05  
+Release: Tool-53 v1.0
+
+## Executive Summary
+
+Tool-53 security review completed across:
+
+- React frontend
+- Spring Boot backend
+- Flask AI microservice
+- Redis cache
+- PostgreSQL
+- ChromaDB
+
+Result:
+
+PASS — Approved for demo.
+
+
+## Threats Verified
+
+PASS:
+
+- Prompt Injection
+- SQL Injection
+- XSS
+- Broken Authentication
+- Broken Authorization
+- Rate Limit Abuse
+- AI Provider Failure
+- Sensitive Data Leakage
+- Security Misconfiguration
+
+
+## Tests Conducted
+
+Completed:
+
+- pytest unit tests: 10/10 passed
+- OWASP ZAP active scan
+- PII audit
+- JWT + role validation
+- Rate limit testing
+- AI fallback testing
+- Performance benchmark (p50/p95/p99)
+
+Result:
+
+Critical: 0  
+High: 0  
+Medium: 0 unresolved
+
+
+## Residual Risks
+
+Accepted for local demo only:
+
+- Werkzeug version disclosure
+- Local HTTP without TLS
+- In-memory job storage
+
+
+## Team Sign-Off
+
+- AI Dev 1 — APPROVED
+- AI Dev 2 — APPROVED
+- AI Dev 3 — APPROVED
+- Java Dev 1 — APPROVED
+- Java Dev 2 — APPROVED
+
+
+## Final Decision
+
+Tool-53 is security verified and approved for demonstration release.
