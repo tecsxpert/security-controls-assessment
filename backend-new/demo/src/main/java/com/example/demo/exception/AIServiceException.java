@@ -1,0 +1,8 @@
+package com.example.demo.exception;
+
+public class AIServiceException extends RuntimeException {
+
+    public AIServiceException(String message) {
+        super(message);
+    }
+}
